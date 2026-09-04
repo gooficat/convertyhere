@@ -13,6 +13,7 @@
     "preact": "^10.19.3"
   },
   "devDependencies": {
+    "@ffmpeg/core": "0.12.9",
     "@preact/signals-react-transform": "^0.8.2",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
