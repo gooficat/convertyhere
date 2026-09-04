@@ -13,16 +13,26 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [outputExt, setOutputExt] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
 
   const handleFileSelect = (file: MediaFile) => {
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setMediaFile(file);
     setState("idle");
     setProgress(0);
     setError(null);
     setDownloadUrl(null);
     setOutputExt("");
+
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file.file);
+      setPreviewUrl(url);
+    } else if (file.type.startsWith("video/")) {
+      const url = URL.createObjectURL(file.file);
+      setPreviewUrl(url);
+    }
   };
 
   const isVideo = mediaFile?.type.startsWith("video") ?? false;
@@ -51,10 +61,7 @@ export function App() {
         const wasmURL = `${baseURL}/ffmpeg-core.wasm`;
 
         try {
-          await ffmpeg.load({
-            coreURL,
-            wasmURL,
-          });
+          await ffmpeg.load({ coreURL, wasmURL });
         } catch (localErr) {
           console.warn("Local FFmpeg load failed, trying CDN fallback...", localErr);
           const cdnBaseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
@@ -82,6 +89,7 @@ export function App() {
     return () => {
       loaded = true;
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       ffmpegRef.current?.terminate();
     };
   }, []);
@@ -148,129 +156,175 @@ export function App() {
 
   const handleRemove = () => {
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setMediaFile(null);
     setState("idle");
     setProgress(0);
     setError(null);
     setDownloadUrl(null);
     setOutputExt("");
+    setPreviewUrl(null);
   };
 
   return (
-    <div class="min-h-screen bg-gray-50">
-      <div class="max-w-2xl mx-auto px-4 py-12">
-        <div class="text-center mb-10">
-          <h1 class="text-3xl font-bold text-gray-900">
-            Media Converter
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+        <header class="text-center mb-10">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white mb-4 shadow-lg shadow-indigo-200">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+            Convert<span class="text-indigo-600">Here</span>
           </h1>
-          <p class="mt-2 text-gray-600">
-            Convert images and videos locally in your browser. No uploads to any server.
+          <p class="mt-3 text-base text-slate-600 max-w-md mx-auto">
+            Convert images and videos instantly in your browser. No uploads, no waiting, completely free.
           </p>
-        </div>
+        </header>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
-          {!mediaFile ? (
-            <div class="space-y-4">
-              <FileUpload
-                onFileSelect={handleFileSelect}
-                accept="image/*,video/*"
-                label="Drop an image or video here"
-              />
-              <div class="flex gap-4">
-                <div class="flex-1">
-                  <p class="text-xs font-semibold text-gray-500 uppercase mb-2">
-                    Supported Images
-                  </p>
-                  <p class="text-xs text-gray-500">
-                    PNG, JPEG, WebP, BMP, TIFF, ICO
-                  </p>
-                </div>
-                <div class="flex-1">
-                  <p class="text-xs font-semibold text-gray-500 uppercase mb-2">
-                    Supported Videos
-                  </p>
-                  <p class="text-xs text-gray-500">
-                    MP4, WebM, AVI, MOV, MKV, GIF
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
-                <div class="flex items-center gap-3">
-                  <div class="text-2xl">
-                    {isVideo ? "🎬" : isImage ? "🖼️" : "📎"}
-                  </div>
-                  <div>
-                    <p class="font-medium text-gray-900 truncate max-w-xs">
-                      {mediaFile.name}
-                    </p>
-                    <p class="text-xs text-gray-500">
-                      {(mediaFile.size / 1024 / 1024).toFixed(2)} MB •{" "}
-                      {mediaFile.type || "Unknown"}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleRemove}
-                  disabled={isBusy}
-                  class="text-sm text-red-600 hover:text-red-700 disabled:text-gray-400"
-                >
-                  Remove
-                </button>
-              </div>
-
-              {(isVideo || isImage) && (
-                <ConverterControls
-                  isVideo={isVideo}
-                  onConvert={handleConvert}
-                  converting={isBusy}
+        <main class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+          <div class="p-6 sm:p-8">
+            {!mediaFile ? (
+              <div class="space-y-6">
+                <FileUpload
+                  onFileSelect={handleFileSelect}
+                  accept="image/*,video/*"
+                  label="Drop your file here"
                 />
-              )}
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <div class="flex items-center gap-2 mb-2">
+                      <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p class="text-sm font-semibold text-slate-700">Images</p>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                      PNG, JPEG, WebP, BMP, TIFF, ICO
+                    </p>
+                  </div>
+                  <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <div class="flex items-center gap-2 mb-2">
+                      <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <p class="text-sm font-semibold text-slate-700">Videos</p>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                      MP4, WebM, AVI, MOV, MKV, GIF
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row gap-4 items-start">
+                  <div class="flex-shrink-0 w-full sm:w-32 h-32 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
+                    {previewUrl ? (
+                      isImage ? (
+                        <img src={previewUrl} alt="Preview" class="w-full h-full object-cover" />
+                      ) : (
+                        <video src={previewUrl} class="w-full h-full object-cover" muted />
+                      )
+                    ) : (
+                      <div class="text-3xl">
+                        {isVideo ? "🎬" : isImage ? "🖼️" : "📎"}
+                      </div>
+                    )}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="min-w-0">
+                        <h3 class="text-sm font-semibold text-slate-900 truncate" title={mediaFile.name}>
+                          {mediaFile.name}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                          {(mediaFile.size / 1024 / 1024).toFixed(2)} MB • {mediaFile.type || "Unknown"}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleRemove}
+                        disabled={isBusy}
+                        class="flex-shrink-0 p-1.5 text-slate-400 hover:text-red-500 disabled:text-slate-300 transition-colors"
+                        title="Remove file"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    {(isVideo || isImage) && (
+                      <div class="mt-3">
+                        <ConverterControls
+                          isVideo={isVideo}
+                          onConvert={handleConvert}
+                          converting={isBusy}
+                        />
+                      </div>
+                    )}
+                    {!isVideo && !isImage && (
+                      <p class="mt-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+                        Unsupported file type. Please upload an image or video.
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-              {!isVideo && !isImage && (
-                <p class="mt-4 text-sm text-red-600">
-                  Unsupported file type. Please upload an image or video.
-                </p>
-              )}
+                <ProgressBar
+                  progress={progress}
+                  label={
+                    state === "converting"
+                      ? "Converting..."
+                      : state === "done"
+                      ? "Complete"
+                      : state === "loading"
+                      ? "Loading engine..."
+                      : state === "error"
+                      ? "Error"
+                      : ""
+                  }
+                />
 
-              <ProgressBar
-                progress={progress}
-                label={
-                  state === "converting"
-                    ? "Converting..."
-                    : state === "done"
-                    ? "Complete"
-                    : state === "loading"
-                    ? "Loading FFmpeg..."
-                    : state === "error"
-                    ? "Error"
-                    : ""
-                }
-              />
+                {state === "done" && downloadUrl && (
+                  <button
+                    onClick={handleDownload}
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-200 flex items-center justify-center gap-2"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Converted File
+                  </button>
+                )}
 
-              {state === "done" && downloadUrl && (
-                <button
-                  onClick={handleDownload}
-                  class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
-                >
-                  Download Converted File
-                </button>
-              )}
+                {state === "error" && (
+                  <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+                    <p class="text-sm text-red-700 text-center">{error}</p>
+                    <button
+                      onClick={handleRemove}
+                      class="mt-2 w-full text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      Try another file
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-              {state === "error" && (
-                <p class="mt-4 text-sm text-red-600 text-center">
-                  {error}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+          <footer class="bg-slate-50 px-6 py-4 border-t border-slate-100">
+            <p class="text-xs text-center text-slate-500">
+              Powered by ffmpeg.wasm • 100% local processing • Your files never leave your device
+            </p>
+          </footer>
+        </main>
 
-        <p class="mt-6 text-xs text-center text-gray-500">
-          Powered by ffmpeg.wasm • All processing happens in your browser
-        </p>
+        <footer class="mt-8 text-center">
+          <p class="text-xs text-slate-400">
+            ConvertHere • Built with Preact, Tailwind & ffmpeg.wasm
+          </p>
+        </footer>
       </div>
     </div>
   );

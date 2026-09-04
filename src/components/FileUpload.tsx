@@ -45,10 +45,10 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
 
   return (
     <div
-      class={`relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+      class={`relative border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 ${
         isDragging
-          ? "border-blue-500 bg-blue-50"
-          : "border-gray-300 hover:border-gray-400"
+          ? "border-indigo-500 bg-indigo-50/50 scale-[1.01]"
+          : "border-slate-300 hover:border-indigo-400 hover:bg-slate-50/50"
       }`}
       onDragOver={(e) => {
         e.preventDefault();
@@ -64,21 +64,25 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       />
       <div class="pointer-events-none">
-        <svg
-          class="mx-auto h-12 w-12 text-gray-400"
-          stroke="currentColor"
-          fill="none"
-          viewBox="0 0 48 48"
-        >
-          <path
-            d="M28 8H12a4 4 0 00-4 4v20m32-12v12m0 0v4m0-4H28m-4 12h4"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <p class="mt-2 text-sm text-gray-600">{label}</p>
-        <p class="mt-1 text-xs text-gray-500">or drag and drop</p>
+        <div class={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
+          isDragging ? "bg-indigo-100" : "bg-slate-100"
+        }`}>
+          <svg
+            class={`w-8 h-8 transition-colors ${isDragging ? "text-indigo-600" : "text-slate-400"}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-slate-700">{label}</p>
+        <p class="mt-1 text-xs text-slate-500">or click to browse</p>
       </div>
     </div>
   );
