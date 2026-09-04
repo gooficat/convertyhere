@@ -12,10 +12,22 @@ export function App() {
   const [state, setState] = useState<ConversionState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [outputExt, setOutputExt] = useState<string>("");
   const ffmpegRef = useRef<FFmpeg | null>(null);
+
+  const handleFileSelect = (file: MediaFile) => {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    setMediaFile(file);
+    setState("idle");
+    setProgress(0);
+    setError(null);
+    setDownloadUrl(null);
+    setOutputExt("");
+  };
 
   const isVideo = mediaFile?.type.startsWith("video") ?? false;
   const isImage = mediaFile?.type.startsWith("image") ?? false;
+  const isBusy = state === "loading" || state === "converting";
 
   useEffect(() => {
     let loaded = false;
@@ -26,7 +38,11 @@ export function App() {
         const ffmpeg = new FFmpeg();
         ffmpegRef.current = ffmpeg;
 
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+        ffmpeg.on("progress", ({ progress }) => {
+          setProgress(Math.round(progress * 100));
+        });
+
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
         await ffmpeg.load({
           coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
           wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
@@ -45,6 +61,7 @@ export function App() {
     loadFFmpeg();
     return () => {
       loaded = true;
+      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
       ffmpegRef.current?.terminate();
     };
   }, []);
@@ -53,21 +70,18 @@ export function App() {
     format: { ext: string },
     preset: { ffmpegArgs: string[] }
   ) => {
-    if (!mediaFile || !ffmpegRef.current) return;
+    if (!mediaFile || !ffmpegRef.current || ffmpegRef.current.loaded === false) return;
 
     setState("converting");
     setProgress(0);
     setError(null);
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     setDownloadUrl(null);
 
     try {
       const ffmpeg = ffmpegRef.current;
       const inputName = `input${getExtension(mediaFile.name)}`;
       const outputName = `output.${format.ext}`;
-
-      ffmpeg.on("progress", ({ progress }) => {
-        setProgress(Math.round(progress * 100));
-      });
 
       await ffmpeg.writeFile(inputName, await fetchFile(mediaFile.file));
 
@@ -91,6 +105,7 @@ export function App() {
       const blob = new Blob([data as BlobPart], { type: getMimeType(format.ext) });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
+      setOutputExt(format.ext);
       setState("done");
 
       await ffmpeg.deleteFile(inputName);
@@ -98,7 +113,7 @@ export function App() {
     } catch (err) {
       console.error(err);
       setState("error");
-      setError("Conversion failed. Please try another file.");
+      setError(err instanceof Error ? err.message : "Conversion failed. Please try another file.");
     }
   };
 
@@ -107,8 +122,18 @@ export function App() {
     const a = document.createElement("a");
     a.href = downloadUrl;
     const baseName = mediaFile.name.replace(/\.[^/.]+$/, "");
-    a.download = `${baseName}_converted`;
+    a.download = `${baseName}_converted.${outputExt}`;
     a.click();
+  };
+
+  const handleRemove = () => {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    setMediaFile(null);
+    setState("idle");
+    setProgress(0);
+    setError(null);
+    setDownloadUrl(null);
+    setOutputExt("");
   };
 
   return (
@@ -127,7 +152,7 @@ export function App() {
           {!mediaFile ? (
             <div class="space-y-4">
               <FileUpload
-                onFileSelect={setMediaFile}
+                onFileSelect={handleFileSelect}
                 accept="image/*,video/*"
                 label="Drop an image or video here"
               />
@@ -168,14 +193,8 @@ export function App() {
                   </div>
                 </div>
                 <button
-                  onClick={() => {
-                    setMediaFile(null);
-                    setState("idle");
-                    setProgress(0);
-                    setError(null);
-                    setDownloadUrl(null);
-                  }}
-                  disabled={state === "converting"}
+                  onClick={handleRemove}
+                  disabled={isBusy}
                   class="text-sm text-red-600 hover:text-red-700 disabled:text-gray-400"
                 >
                   Remove
@@ -186,7 +205,7 @@ export function App() {
                 <ConverterControls
                   isVideo={isVideo}
                   onConvert={handleConvert}
-                  converting={state === "converting"}
+                  converting={isBusy}
                 />
               )}
 
