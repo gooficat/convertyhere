@@ -128,6 +128,13 @@ export function App() {
           ...preset.ffmpegArgs,
           outputName,
         ]);
+      } else if (isImage) {
+        await ffmpeg.exec([
+          "-i", inputName,
+          "-pix_fmt", "yuvj420p",
+          "-qscale:v", "2",
+          outputName,
+        ]);
       } else {
         await ffmpeg.exec([
           "-i", inputName,
@@ -191,10 +198,10 @@ export function App() {
             </span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-            Convert<span class="text-indigo-600">yHere</span>
+            <span class="text-indigo-600">Converty</span>Here
           </h1>
           <p class="mt-3 text-base text-slate-600 max-w-md mx-auto">
-            Your files never leave your device. Convert images and videos locally — no uploads, no servers, no waiting.
+            Your files stay on your device. Convert images and videos right in your browser, no uploads or servers involved.
           </p>
         </header>
 
