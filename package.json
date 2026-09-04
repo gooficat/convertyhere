@@ -7,8 +7,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "preact": "^10.19.3",
-    "@preact/preset-vite": "^2.8.2"
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "@preact/preset-vite": "^2.8.2",
+    "preact": "^10.19.3"
   },
   "devDependencies": {
     "@preact/signals-react-transform": "^0.8.2",
