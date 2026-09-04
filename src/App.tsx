@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
 import type { MediaFile, ConversionState } from "./types";
 import { FileUpload } from "./components/FileUpload";
 import { ConverterControls } from "./components/ConverterControls";
@@ -38,22 +38,42 @@ export function App() {
         const ffmpeg = new FFmpeg();
         ffmpegRef.current = ffmpeg;
 
+        ffmpeg.on("log", ({ message }) => {
+          console.log("[ffmpeg]", message);
+        });
+
         ffmpeg.on("progress", ({ progress }) => {
           setProgress(Math.round(progress * 100));
         });
 
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
-        await ffmpeg.load({
-          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        });
+        const baseURL = "/ffmpeg/esm";
+        const coreURL = `${baseURL}/ffmpeg-core.js`;
+        const wasmURL = `${baseURL}/ffmpeg-core.wasm`;
+
+        try {
+          await ffmpeg.load({
+            coreURL,
+            wasmURL,
+          });
+        } catch (localErr) {
+          console.warn("Local FFmpeg load failed, trying CDN fallback...", localErr);
+          const cdnBaseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
+          await ffmpeg.load({
+            coreURL: `${cdnBaseURL}/ffmpeg-core.js`,
+            wasmURL: `${cdnBaseURL}/ffmpeg-core.wasm`,
+          });
+        }
 
         if (!loaded) setState("idle");
       } catch (err) {
-        console.error(err);
+        console.error("FFmpeg load error:", err);
         if (!loaded) {
           setState("error");
-          setError("Failed to load FFmpeg. Please refresh the page.");
+          setError(
+            err instanceof Error
+              ? `Failed to load FFmpeg: ${err.message}`
+              : "Failed to load FFmpeg. Please refresh the page."
+          );
         }
       }
     }
