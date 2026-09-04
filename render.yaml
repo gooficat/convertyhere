@@ -1,0 +1,9 @@
+services:
+  - type: static
+    name: preact-tailwind-app
+    runtime: bun
+    buildCommand: bun run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production
