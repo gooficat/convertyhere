@@ -48,10 +48,6 @@ export function App() {
         const ffmpeg = new FFmpeg();
         ffmpegRef.current = ffmpeg;
 
-        ffmpeg.on("log", ({ message }) => {
-          console.log("[ffmpeg]", message);
-        });
-
         ffmpeg.on("progress", ({ progress }) => {
           setProgress(Math.round(progress * 100));
         });
@@ -62,8 +58,7 @@ export function App() {
 
         try {
           await ffmpeg.load({ coreURL, wasmURL });
-        } catch (localErr) {
-          console.warn("Local FFmpeg load failed, trying CDN fallback...", localErr);
+        } catch {
           const cdnBaseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
           await ffmpeg.load({
             coreURL: `${cdnBaseURL}/ffmpeg-core.js`,
@@ -73,13 +68,13 @@ export function App() {
 
         if (!loaded) setState("idle");
       } catch (err) {
-        console.error("FFmpeg load error:", err);
+        console.error(err);
         if (!loaded) {
           setState("error");
           setError(
             err instanceof Error
-              ? `Failed to load FFmpeg: ${err.message}`
-              : "Failed to load FFmpeg. Please refresh the page."
+              ? err.message
+              : "Failed to load. Please refresh the page."
           );
         }
       }
@@ -279,7 +274,7 @@ export function App() {
                       : state === "done"
                       ? "Complete"
                       : state === "loading"
-                      ? "Loading engine..."
+                      ? "Loading..."
                       : state === "error"
                       ? "Error"
                       : ""
@@ -315,16 +310,10 @@ export function App() {
 
           <footer class="bg-slate-50 px-6 py-4 border-t border-slate-100">
             <p class="text-xs text-center text-slate-500">
-              Powered by ffmpeg.wasm • 100% local processing • Your files never leave your device
+              Powered by FFmpeg
             </p>
           </footer>
         </main>
-
-        <footer class="mt-8 text-center">
-          <p class="text-xs text-slate-400">
-            ConvertHere • Built with Preact, Tailwind & ffmpeg.wasm
-          </p>
-        </footer>
       </div>
     </div>
   );
