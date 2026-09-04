@@ -64,14 +64,14 @@ export function App() {
           setProgress(Math.round(progress * 100));
         });
 
-        const baseURL = "/ffmpeg/esm";
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
         const coreURL = `${baseURL}/ffmpeg-core.js`;
         const wasmURL = `${baseURL}/ffmpeg-core.wasm`;
 
         try {
           await ffmpeg.load({ coreURL, wasmURL });
         } catch {
-          const cdnBaseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
+          const cdnBaseURL = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/umd";
           await ffmpeg.load({
             coreURL: `${cdnBaseURL}/ffmpeg-core.js`,
             wasmURL: `${cdnBaseURL}/ffmpeg-core.wasm`,
@@ -122,21 +122,16 @@ export function App() {
 
       if (isVideo && format.ext === "gif") {
         await ffmpeg.exec([
+          "-nostdin", "-y",
           "-i", inputName,
           "-vf", "fps=10,scale=480:-1:flags=lanczos",
           "-loop", "0",
           ...preset.ffmpegArgs,
           outputName,
         ]);
-      } else if (isImage) {
-        await ffmpeg.exec([
-          "-i", inputName,
-          "-pix_fmt", "yuvj420p",
-          "-qscale:v", "2",
-          outputName,
-        ]);
       } else {
         await ffmpeg.exec([
+          "-nostdin", "-y",
           "-i", inputName,
           ...preset.ffmpegArgs,
           outputName,
