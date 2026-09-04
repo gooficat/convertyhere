@@ -1,6 +1,6 @@
 services:
   - type: static
-    name: preact-tailwind-app
+    name: convertyhere
     runtime: bun
     buildCommand: bun run build
     staticPublishPath: ./dist
