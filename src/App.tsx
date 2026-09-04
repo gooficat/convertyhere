@@ -171,7 +171,7 @@ export function App() {
             </svg>
           </div>
           <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-            Convert<span class="text-indigo-600">Here</span>
+            Convert<span class="text-indigo-600">yHere</span>
           </h1>
           <p class="mt-3 text-base text-slate-600 max-w-md mx-auto">
             Convert images and videos instantly in your browser. No uploads, no waiting, completely free.
