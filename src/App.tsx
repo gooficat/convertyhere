@@ -15,6 +15,7 @@ export function App() {
   const [outputExt, setOutputExt] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
 
   useEffect(() => {
@@ -22,9 +23,18 @@ export function App() {
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
     };
   }, []);
 
@@ -175,6 +185,16 @@ export function App() {
     setPreviewUrl(null);
   };
 
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    const prompt = deferredPrompt as any;
+    prompt.prompt();
+    const { outcome } = await prompt.userChoice;
+    if (outcome === "accepted") {
+      setDeferredPrompt(null);
+    }
+  };
+
   return (
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
@@ -191,6 +211,17 @@ export function App() {
               <span class={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-green-500" : "bg-amber-500"}`} />
               {isOnline ? "Online" : "Offline ready"}
             </span>
+            {deferredPrompt && (
+              <button
+                onClick={handleInstall}
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Install App
+              </button>
+            )}
           </div>
           <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
             <span class="text-indigo-600">Converty</span>Here
