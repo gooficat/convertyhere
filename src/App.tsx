@@ -5,6 +5,7 @@ import type { MediaFile, ConversionState } from "./types";
 import { FileUpload } from "./components/FileUpload";
 import { ConverterControls } from "./components/ConverterControls";
 import { ProgressBar } from "./components/ProgressBar";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 export function App() {
   const [mediaFile, setMediaFile] = useState<MediaFile | null>(null);
@@ -196,7 +197,7 @@ export function App() {
   };
 
   return (
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
         <header class="text-center mb-10">
           <div class="flex items-center justify-center gap-3 mb-4">
@@ -206,7 +207,7 @@ export function App() {
               </svg>
             </div>
             <span class={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-              isOnline ? "bg-green-50 text-green-700 border border-green-200" : "bg-amber-50 text-amber-700 border border-amber-200"
+              isOnline ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700" : "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700"
             }`}>
               <span class={`w-1.5 h-1.5 rounded-full ${isOnline ? "bg-green-500" : "bg-amber-500"}`} />
               {isOnline ? "Online" : "Offline ready"}
@@ -214,7 +215,7 @@ export function App() {
             {deferredPrompt && (
               <button
                 onClick={handleInstall}
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700 dark:hover:bg-indigo-900/50 transition-colors"
               >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -222,16 +223,17 @@ export function App() {
                 Install App
               </button>
             )}
+            <ThemeToggle />
           </div>
-          <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
-            <span class="text-indigo-600">Converty</span>Here
+          <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <span class="text-indigo-600 dark:text-indigo-400">Converty</span>Here
           </h1>
-          <p class="mt-3 text-base text-slate-600 max-w-md mx-auto">
+          <p class="mt-3 text-base text-slate-600 dark:text-slate-300 max-w-md mx-auto">
             Your files stay on your device. Convert images and videos right in your browser, no uploads or servers involved.
           </p>
         </header>
 
-        <main class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+        <main class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/60 dark:shadow-slate-900/40 border border-slate-100 dark:border-slate-700 overflow-hidden">
           <div class="p-6 sm:p-8">
             {!mediaFile ? (
               <div class="space-y-6">
