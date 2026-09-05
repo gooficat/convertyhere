@@ -243,25 +243,25 @@ export function App() {
                   label="Drop your file here"
                 />
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600">
                     <div class="flex items-center gap-2 mb-2">
                       <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <p class="text-sm font-semibold text-slate-700">Images</p>
+                      <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Images</p>
                     </div>
-                    <p class="text-xs text-slate-500 leading-relaxed">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       PNG, JPEG, WebP, BMP, TIFF, ICO
                     </p>
                   </div>
-                  <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                  <div class="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-100 dark:border-slate-600">
                     <div class="flex items-center gap-2 mb-2">
                       <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
-                      <p class="text-sm font-semibold text-slate-700">Videos</p>
+                      <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Videos</p>
                     </div>
-                    <p class="text-xs text-slate-500 leading-relaxed">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                       MP4, WebM, AVI, MOV, MKV, GIF
                     </p>
                   </div>
@@ -270,7 +270,7 @@ export function App() {
             ) : (
               <div class="space-y-6">
                 <div class="flex flex-col sm:flex-row gap-4 items-start">
-                  <div class="flex-shrink-0 w-full sm:w-32 h-32 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
+                  <div class="flex-shrink-0 w-full sm:w-32 h-32 bg-slate-100 dark:bg-slate-700 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 flex items-center justify-center">
                     {previewUrl ? (
                       isImage ? (
                         <img src={previewUrl} alt="Preview" class="w-full h-full object-cover" />
@@ -286,7 +286,7 @@ export function App() {
                   <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between gap-2">
                       <div class="min-w-0">
-                        <h3 class="text-sm font-semibold text-slate-900 truncate" title={mediaFile.name}>
+                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate" title={mediaFile.name}>
                           {mediaFile.name}
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">
@@ -296,7 +296,7 @@ export function App() {
                       <button
                         onClick={handleRemove}
                         disabled={isBusy}
-                        class="flex-shrink-0 p-1.5 text-slate-400 hover:text-red-500 disabled:text-slate-300 transition-colors"
+                        class="flex-shrink-0 p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 disabled:text-slate-300 transition-colors"
                         title="Remove file"
                       >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,7 +314,7 @@ export function App() {
                       </div>
                     )}
                     {!isVideo && !isImage && (
-                      <p class="mt-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+                      <p class="mt-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-2">
                         Unsupported file type. Please upload an image or video.
                       </p>
                     )}
@@ -349,11 +349,11 @@ export function App() {
                 )}
 
                 {state === "error" && (
-                  <div class="bg-red-50 border border-red-100 rounded-xl p-4">
-                    <p class="text-sm text-red-700 text-center">{error}</p>
+                  <div class="bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-700 rounded-xl p-4">
+                    <p class="text-sm text-red-700 dark:text-red-300 text-center">{error}</p>
                     <button
                       onClick={handleRemove}
-                      class="mt-2 w-full text-sm text-red-600 hover:text-red-700 font-medium"
+                      class="mt-2 w-full text-sm text-red-600 dark:text-red-400 hover:text-red-700 font-medium"
                     >
                       Try another file
                     </button>
@@ -363,7 +363,7 @@ export function App() {
             )}
           </div>
 
-          <footer class="bg-slate-50 px-6 py-4 border-t border-slate-100">
+          <footer class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-100 dark:border-slate-700">
             <p class="text-xs text-center text-slate-500">
               Works offline • Powered by FFmpeg
             </p>

@@ -41,7 +41,7 @@ export function ConverterControls({
   return (
     <div class="space-y-5">
       <div>
-        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
           Output Format
         </label>
         <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -52,8 +52,8 @@ export function ConverterControls({
               disabled={converting}
               class={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
                 format.value === f.value
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-600"
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                  : "border-slate-200 dark:border-slate-600 hover:border-indigo-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
               } ${converting ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <span class="text-xl">{formatIcons[f.ext]}</span>
@@ -64,7 +64,7 @@ export function ConverterControls({
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
           Quality
         </label>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -75,8 +75,8 @@ export function ConverterControls({
               disabled={converting}
               className={`flex flex-col items-center justify-center gap-1 p-3 rounded-xl border-2 transition-all ${
                 preset.value === p.value
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-600"
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
+                  : "border-slate-200 dark:border-slate-600 hover:border-indigo-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
               } ${converting ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <span class="text-sm font-semibold">{p.label}</span>
