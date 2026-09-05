@@ -47,8 +47,8 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
     <div
       class={`relative border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 ${
         isDragging
-          ? "border-indigo-500 bg-indigo-50/50 scale-[1.01]"
-          : "border-slate-300 hover:border-indigo-400 hover:bg-slate-50/50"
+          ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/30 scale-[1.01]"
+          : "border-slate-300 dark:border-slate-600 hover:border-indigo-400 hover:bg-slate-50/50 dark:hover:bg-slate-700/50"
       }`}
       onDragOver={(e) => {
         e.preventDefault();
@@ -65,10 +65,10 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
       />
       <div class="pointer-events-none">
         <div class={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
-          isDragging ? "bg-indigo-100" : "bg-slate-100"
+          isDragging ? "bg-indigo-100" : "bg-slate-100 dark:bg-slate-700"
         }`}>
           <svg
-            class={`w-8 h-8 transition-colors ${isDragging ? "text-indigo-600" : "text-slate-400"}`}
+            class={`w-8 h-8 transition-colors ${isDragging ? "text-indigo-600" : "text-slate-400 dark:text-slate-500 dark:text-slate-400"}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -81,8 +81,8 @@ export function FileUpload({ onFileSelect, accept, label }: FileUploadProps) {
             />
           </svg>
         </div>
-        <p class="text-sm font-medium text-slate-700">{label}</p>
-        <p class="mt-1 text-xs text-slate-500">or click to browse</p>
+        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">or click to browse</p>
       </div>
     </div>
   );
